@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.19;
 
-import "./RouterInternal.sol";
+import "./RouterProtecc.sol";
 import "../interfaces/IWETH.sol";
 import "../interfaces/protocol/IRouter.sol";
 import "../interfaces/protocol/core/IFactory.sol";
 import "../libraries/protocol/Library.sol";
 import "../libraries/token/ERC20/utils/TransferHelper.sol";
 
-contract Router is IRouter, RouterInternal {
+contract Router is IRouter, RouterProtecc {
     address public immutable override factory;
     address public immutable override WETH;
 
@@ -290,7 +290,7 @@ contract Router is IRouter, RouterInternal {
         address tokenIn = path[0];
         address initialPair = Library.pairFor(factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(tokenIn, msg.sender, initialPair, amounts[0]);
-        _swapCached(factory, initialPair, amounts, path, to);
+        _swapMemoryGasSipping(factory, initialPair, amounts, path, to);
     }
 
     function swapExactETHForTokens(uint256 amountOutMin, address[] calldata path, address to, uint256 deadline)
@@ -311,7 +311,7 @@ contract Router is IRouter, RouterInternal {
         address initialPair = Library.pairFor(factory, tokenIn, path[1]);
         assert(IWETH(WETH).transfer(initialPair, amountIn));
 
-        _swapCached(factory, initialPair, amounts, path, to);
+        _swapMemoryGasSipping(factory, initialPair, amounts, path, to);
     }
 
     function swapExactTokensForETH(
@@ -328,7 +328,7 @@ contract Router is IRouter, RouterInternal {
         address tokenIn = path[0];
         address initialPair = Library.pairFor(factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(tokenIn, msg.sender, initialPair, amounts[0]);
-        _swapCached(factory, initialPair, amounts, path, address(this));
+        _swapMemoryGasSipping(factory, initialPair, amounts, path, address(this));
 
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
@@ -348,7 +348,7 @@ contract Router is IRouter, RouterInternal {
         address tokenIn = path[0];
         address initialPair = Library.pairFor(factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(tokenIn, msg.sender, initialPair, amounts[0]);
-        _swapCached(factory, initialPair, amounts, path, to);
+        _swapMemoryGasSipping(factory, initialPair, amounts, path, to);
     }
 
     function swapETHForExactTokens(uint256 amountOut, address[] calldata path, address to, uint256 deadline)
@@ -369,7 +369,7 @@ contract Router is IRouter, RouterInternal {
         IWETH(WETH).deposit{value: amountIn}();
         address initialPair = Library.pairFor(factory, tokenIn, path[1]);
         assert(IWETH(WETH).transfer(initialPair, amountIn));
-        _swapCached(factory, initialPair, amounts, path, to);
+        _swapMemoryGasSipping(factory, initialPair, amounts, path, to);
 
         // refund dust eth, if any
         if (msg.value > amountIn) {
@@ -393,7 +393,7 @@ contract Router is IRouter, RouterInternal {
         address tokenIn = path[0];
         address initialPair = Library.pairFor(factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(tokenIn, msg.sender, initialPair, amountIn);
-        _swapCached(factory, initialPair, amounts, path, address(this));
+        _swapMemoryGasSipping(factory, initialPair, amounts, path, address(this));
 
         uint256 _amountOut = amounts[amounts.length - 1];
         IWETH(WETH).withdraw(_amountOut);

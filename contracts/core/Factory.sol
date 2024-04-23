@@ -24,6 +24,8 @@ contract Factory is IFactory {
     /// @dev Returns whether an address is a pair
     mapping(address => bool) public override isPair;
 
+    bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(Pair).creationCode));
+
     /// @dev Total base point for swap fee
     uint16 public override swapFee = 30; // 0.3%, in 10000 precision
 
